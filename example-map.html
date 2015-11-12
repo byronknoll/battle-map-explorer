@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+		<title>Battle Map Explorer</title>
+		<style>
+			* { margin: 0; padding: 0;}
+			body, html { height:100%; }
+			#canvas {
+				position:absolute;
+				width:100%;
+				height:100%;
+			}
+		</style>
+	</head>
+	<body onload="init();">
+		<canvas id="canvas" style="background-color:#000;" ></canvas>
+	</body>
+	<script type="text/javascript" src="external/hammer.js"></script>
+	<script type="text/javascript" src="external/visibility_polygon.js"></script>
+	<script type="text/javascript" src="battle-map-explorer.js"></script>
+</html>
