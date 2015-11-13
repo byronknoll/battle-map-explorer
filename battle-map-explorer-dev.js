@@ -6,7 +6,7 @@ Made by Byron Knoll.
 
 https://github.com/byronknoll/battle-map-explorer
 
-See "example-map.html" for an example of how to use this library.
+See example-map.html for an example of how to use this library.
 
 This library is called using the "run" function:
 
