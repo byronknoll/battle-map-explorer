@@ -185,11 +185,11 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 		ctx.arc(center_x, center_y, rad, 0, Math.PI*2, true);
 		ctx.clip();
 
-		var poly = VisibilityPolygon.compute([observer_x, observer_y], segments);
-
-		ctx.beginPath();
 		var offset_x = center_x - observer_x;
 		var offset_y = center_y - observer_y;
+		var poly = VisibilityPolygon.computeViewport([observer_x, observer_y], segments, [-offset_x, -offset_y], [width-offset_x, height-offset_y]);
+
+		ctx.beginPath();
 		ctx.moveTo(poly[0][0]+offset_x, poly[0][1]+offset_y);
 		for (var i = 1; i < poly.length; ++i) {
 			ctx.lineTo(poly[i][0]+offset_x, poly[i][1]+offset_y);
