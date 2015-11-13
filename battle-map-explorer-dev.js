@@ -5,6 +5,17 @@ This code is released into the public domain - attribution is appreciated but no
 Made by Byron Knoll.
 
 https://github.com/byronknoll/battle-map-explorer
+
+See "example-map.html" for an example of how to use this library.
+
+This library is called using the "run" function:
+
+BattleMapExplorer.run(image, position, polygons, doors);
+
+image: string containing a path to the background image.
+position: coordinate of the starting position. A coordinate is a list of two numbers: x position and y position.
+polygons: a list of polygons. Each polygon is a list of coordinates.
+doors: a list of line segments representing doors. A line segment is a list of two coordinates.
 */
 
 window.requestAnimFrame = (function() {
