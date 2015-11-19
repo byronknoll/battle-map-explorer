@@ -49,6 +49,8 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 	var hammer = new Hammer(document.getElementById("canvas"));
 	hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
 
+	var gridinc = 25;
+	
 	var img1 = new Image();
 	var img1_loaded = false;
 	img1.onload = function(){
@@ -114,7 +116,26 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 			update_needed = true;
 		} else if (e.keyCode == 32) {
 			// Press "space" to get the current position.
-			console.log("[" + observer_x + "," + observer_y + "]");
+			console.log("[" + observer_x + "," + observer_y + "],");
+		} else if (e.keyCode == 96) {
+			//Change grid increment (gridinc)
+			gridinc = parseInt(prompt("Enter the desired increment:", gridinc));
+		} else if (e.keyCode == 104) {
+			//up
+			move(observer_x - 0, observer_y - gridinc);
+			update_needed = true;
+		} else if (e.keyCode == 100) {
+			//left
+			move(observer_x - gridinc, observer_y - 0);
+			update_needed = true;
+		} else if (e.keyCode == 102) {
+			//right
+			move(observer_x + gridinc, observer_y - 0);
+			update_needed = true;
+		} else if (e.keyCode == 98) {
+			//down
+			move(observer_x - 0, observer_y + gridinc);
+			update_needed = true;
 		}
 	}
 
