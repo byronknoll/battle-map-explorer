@@ -139,7 +139,7 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 			console.log("[" + observer_x + "," + observer_y + "],");
 		} else if (e.keyCode == 191 || e.keyCode == 96) {
 			// Press '/' to change speed
-			speed = Number(prompt("Enter the desired speed:", speed));
+			speed = Number(prompt("Enter movement speed:", speed));
 		}
 	}
 
