@@ -11,6 +11,6 @@ This map was created by Daniel Somerville and used with his permission. You can 
 ## Description
 This is a library to help you create maps for D&D and other tabletop RPGs. It uses JavaScript and HTML5 canvas. Look at [battle-map-explorer-dev.js](https://github.com/byronknoll/battle-map-explorer/blob/master/battle-map-explorer-dev.js) and [example-map.html](https://github.com/byronknoll/battle-map-explorer/blob/master/example-map.html) to get started. The maps should work across all modern web browsers, operating systems, smart phones, and tablets.
 
-Creating a map involves manually tracing the coordinates of walls and obstacles. One way to find the coordinates is to load an image using this library (without any walls), navigate to a place you want to record, and press 'space'. This will log the coordinates into your browser's developer console.
+Creating a map involves manually tracing the coordinates of walls and obstacles. The coordinates correspond to pixels in the background image (with the origin in the top-left). One way to find the coordinates is to load an image using this library (without any walls), navigate to a place you want to record, and press 'space'. This will log the coordinates into your browser's developer console.
 
 Contact me at byron@byronknoll.com if you have any questions or feature requests.
