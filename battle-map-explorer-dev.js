@@ -136,7 +136,7 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 			update_needed = true;
 		} else if (e.keyCode == 32) {
 			// Press "space" to get the current position.
-			console.log("[" + observer_x + "," + observer_y + "],");
+			console.log("[" + Math.round(observer_x) + "," + Math.round(observer_y) + "],");
 		} else if (e.keyCode == 191 || e.keyCode == 96) {
 			// Press '/' to change speed
 			speed = Number(prompt("Enter movement speed:", speed));
