@@ -49,7 +49,7 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 	var hammer = new Hammer(document.getElementById("canvas"));
 	hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
 
-	var gridinc = 25;
+	var speed = 5;
 	
 	var img1 = new Image();
 	var img1_loaded = false;
@@ -85,57 +85,61 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 		e.preventDefault();
 	}, false);
 
+	function upCode(key) {
+		if (key == 87 || key == 38 || key == 104) return true;
+		return false;
+	};
+
+	function leftCode(key) {
+		if (key == 65 || key == 37 || key == 100) return true;
+		return false;
+	};
+
+	function rightCode(key) {
+		if (key == 68 || key == 39 || key == 102) return true;
+		return false;
+	};
+
+	function downCode(key) {
+		if (key == 83 || key == 40 || key == 98) return true;
+		return false;
+	};
+
 	document.onkeydown=function(e){
-		if (e.keyCode == 87 || e.keyCode == 38) {
+		if (upCode(e.keyCode)) {
 			up = true;
 			update_needed = true;
-		} else if (e.keyCode == 65 || e.keyCode == 37) {
+		} else if (leftCode(e.keyCode)) {
 			left = true;
 			update_needed = true;
-		} else if (e.keyCode == 68 || e.keyCode == 39) {
+		} else if (rightCode(e.keyCode)) {
 			right = true;
 			update_needed = true;
-		} else if (e.keyCode == 83 || e.keyCode == 40) {
+		} else if (downCode(e.keyCode)) {
 			down = true;
 			update_needed = true;
 		}
 	}
 
 	document.onkeyup=function(e){
-		if (e.keyCode == 87 || e.keyCode == 38) {
+		if (upCode(e.keyCode)) {
 			up = false;
 			update_needed = true;
-		} else if (e.keyCode == 65 || e.keyCode == 37) {
+		} else if (leftCode(e.keyCode)) {
 			left = false;
 			update_needed = true;
-		} else if (e.keyCode == 68 || e.keyCode == 39) {
+		} else if (rightCode(e.keyCode)) {
 			right = false;
 			update_needed = true;
-		} else if (e.keyCode == 83 || e.keyCode == 40) {
+		} else if (downCode(e.keyCode)) {
 			down = false;
 			update_needed = true;
 		} else if (e.keyCode == 32) {
 			// Press "space" to get the current position.
 			console.log("[" + observer_x + "," + observer_y + "],");
-		} else if (e.keyCode == 96) {
-			//Change grid increment (gridinc)
-			gridinc = parseInt(prompt("Enter the desired increment:", gridinc));
-		} else if (e.keyCode == 104) {
-			//up
-			move(observer_x - 0, observer_y - gridinc);
-			update_needed = true;
-		} else if (e.keyCode == 100) {
-			//left
-			move(observer_x - gridinc, observer_y - 0);
-			update_needed = true;
-		} else if (e.keyCode == 102) {
-			//right
-			move(observer_x + gridinc, observer_y - 0);
-			update_needed = true;
-		} else if (e.keyCode == 98) {
-			//down
-			move(observer_x - 0, observer_y + gridinc);
-			update_needed = true;
+		} else if (e.keyCode == 191 || e.keyCode == 96) {
+			// Press '/' to change speed
+			speed = Number(prompt("Enter the desired speed:", speed));
 		}
 	}
 
@@ -187,7 +191,6 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 			return;
 		}
 
-		var speed = 5;
 		update_needed = false;
 		if (left) {
 			move(observer_x - speed, observer_y);
