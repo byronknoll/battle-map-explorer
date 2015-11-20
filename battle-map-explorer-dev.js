@@ -45,6 +45,8 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 	var right = false;
 	var up = false;
 	var down = false;
+	var shiftKey = false;
+	var stopMovement = false;
 	var drag_start_x = 0, drag_start_y = 0, drag_diff_x = 0, drag_diff_y = 0;
 	var hammer = new Hammer(document.getElementById("canvas"));
 	hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
@@ -118,6 +120,8 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 		} else if (downCode(e.keyCode)) {
 			down = true;
 			update_needed = true;
+		} else if (e.keyCode == 16) {
+			shiftKey = true;
 		}
 	}
 
@@ -138,9 +142,13 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 			// Press "space" to get the current position.
 			console.log("[" + Math.round(observer_x) + "," + Math.round(observer_y) + "],");
 		} else if (e.keyCode == 191 || e.keyCode == 96) {
-			// Press '/' to change speed
+			// Press '/' to change speed.
 			speed = Number(prompt("Enter movement speed:", speed));
+		} else if (e.keyCode == 16) {
+			// Hold down shift to take single steps.
+			shiftKey = false;
 		}
+		stopMovement = false;
 	}
 
 	hammer.on('pan', function(e) {
@@ -192,22 +200,26 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 		}
 
 		update_needed = false;
-		if (left) {
-			move(observer_x - speed, observer_y);
-			update_needed = true;
+
+		if (!stopMovement) {
+			if (left) {
+				move(observer_x - speed, observer_y);
+				update_needed = true;
+			}
+			if (right) {
+				move(observer_x + speed, observer_y);
+				update_needed = true;
+			}
+			if (up) {
+				move(observer_x, observer_y - speed);
+				update_needed = true;
+			}
+			if (down) {
+				move(observer_x, observer_y + speed);
+				update_needed = true;
+			}
 		}
-		if (right) {
-			move(observer_x + speed, observer_y);
-			update_needed = true;
-		}
-		if (up) {
-			move(observer_x, observer_y - speed);
-			update_needed = true;
-		}
-		if (down) {
-			move(observer_x, observer_y + speed);
-			update_needed = true;
-		}
+		if (shiftKey && (left || right || up || down)) stopMovement = true;
 
 		var center_x = width/2;
 		var center_y = height/2;
