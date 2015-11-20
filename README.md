@@ -13,4 +13,6 @@ This is a library to help you create maps for D&D and other tabletop RPGs. It us
 
 Creating a map involves manually tracing the coordinates of walls and obstacles. The coordinates match the pixel positions of the background image (with the origin in the top-left). One way to find the coordinates is to load an image using this library (without any walls), navigate to a place you want to record, and press 'space'. This will log the coordinates at the crosshair into your browser's developer console. You can press '/' to adjust the movement speed to help fine-tune coordinates.
 
+This project uses two external JavaScript libraries: [visibility-polygon-js](https://github.com/byronknoll/visibility-polygon-js) and [hammer.js](https://github.com/hammerjs/hammer.js/).
+
 Contact me at byron@byronknoll.com if you have any questions or feature requests.
