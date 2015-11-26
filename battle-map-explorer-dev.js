@@ -1,5 +1,5 @@
 /*
-battle-map-explorer version 1.0
+battle-map-explorer version 1.1
 
 This code is released into the public domain - attribution is appreciated but not required.
 Made by Byron Knoll.
@@ -16,6 +16,7 @@ image: string containing a path to the background image.
 position: coordinate of the starting position. A coordinate is a list of two numbers: x position and y position.
 polygons: a list of polygons. Each polygon is a list of coordinates.
 doors: a list of line segments representing doors. A line segment is a list of two coordinates.
+darkness: if true, visibility will be limited to a circular region.
 */
 
 window.requestAnimFrame = (function() {
@@ -31,7 +32,8 @@ window.requestAnimFrame = (function() {
 
 function BattleMapExplorer(){};
 
-BattleMapExplorer.run = function(image, position, polygons, doors) {
+BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
+	darkness = typeof darkness !== 'undefined' ? darkness : true;
 	var width = window.innerWidth;
 	var height = window.innerHeight;
 	canvas.getContext("2d").canvas.width  = width;
@@ -228,9 +230,11 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 		ctx.save();
 		ctx.clearRect(0, 0, width, height);
 
-		ctx.beginPath();
-		ctx.arc(center_x, center_y, rad, 0, Math.PI*2, true);
-		ctx.clip();
+		if (darkness) {
+			ctx.beginPath();
+			ctx.arc(center_x, center_y, rad, 0, Math.PI*2, true);
+			ctx.clip();
+		}
 
 		var offset_x = center_x - observer_x;
 		var offset_y = center_y - observer_y;
@@ -242,12 +246,12 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 			ctx.lineTo(poly[i][0]+offset_x, poly[i][1]+offset_y);
 		}
 		ctx.clip();
-		var clip_x = observer_x - rad;
-		var clip_y = observer_y - rad;
-		var size_x = 2*rad;
-		var size_y = 2*rad;
-		var start_x = center_x - rad;
-		var start_y = center_y - rad;
+		var clip_x = observer_x - width/2;
+		var clip_y = observer_y - height/2;
+		var size_x = width;
+		var size_y = height;
+		var start_x = center_x - width/2;
+		var start_y = center_y - height/2;
 		if (clip_x < 0) {
 			start_x -= clip_x;
 			size_x += clip_x;
@@ -298,12 +302,14 @@ BattleMapExplorer.run = function(image, position, polygons, doors) {
 		ctx.rect(center_x+5,center_y-2,20,4);
 		ctx.stroke();
 
-		var radgrad = ctx.createRadialGradient(center_x,center_y,10,center_x,center_y,rad);
-		radgrad.addColorStop(0, 'rgba(0,0,0,0)');
-		radgrad.addColorStop(0.7, 'rgba(0,0,0,0)');
-		radgrad.addColorStop(1, 'rgba(0,0,0,1)');
-		ctx.fillStyle = radgrad;
-		ctx.fillRect(center_x-rad,center_y-rad,rad*2,rad*2);
+		if (darkness) {
+			var radgrad = ctx.createRadialGradient(center_x,center_y,10,center_x,center_y,rad);
+			radgrad.addColorStop(0, 'rgba(0,0,0,0)');
+			radgrad.addColorStop(0.7, 'rgba(0,0,0,0)');
+			radgrad.addColorStop(1, 'rgba(0,0,0,1)');
+			ctx.fillStyle = radgrad;
+			ctx.fillRect(center_x-rad,center_y-rad,rad*2,rad*2);
+		}
 
 		requestAnimFrame(update);
 	};
