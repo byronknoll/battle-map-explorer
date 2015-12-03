@@ -252,6 +252,14 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 		var size_y = height;
 		var start_x = center_x - width/2;
 		var start_y = center_y - height/2;
+		if (darkness) {
+			clip_x = observer_x - rad;
+			clip_y = observer_y - rad;
+			size_x = 2*rad;
+			size_y = 2*rad;
+			start_x = center_x - rad;
+			start_y = center_y - rad;
+		}
 		if (clip_x < 0) {
 			start_x -= clip_x;
 			size_x += clip_x;
