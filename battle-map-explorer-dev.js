@@ -210,16 +210,12 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 		ctx.save();
 		ctx.clearRect(0, 0, width, height);
 
-		if (darkness) {
-			clipDarkness(ctx, center_x, center_y, rad);
-		}
+		clipDarkness(ctx, center_x, center_y, rad);
 		clipVisibility(ctx, offset_x, offset_y);
 		renderBackground(ctx, center_x, center_y, rad);
 		renderDoors(ctx, offset_x, offset_y);
 		renderCrosshair(ctx, center_x, center_y);
-		if (darkness) {
-			shadeDarkness(ctx, center_x, center_y, rad);
-		}
+		shadeDarkness(ctx, center_x, center_y, rad);
 
 		requestAnimFrame(update);
 	};
@@ -247,6 +243,7 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 	};
 
 	function clipDarkness(ctx, center_x, center_y, rad) {
+		if (!darkness) return;
 		ctx.beginPath();
 		ctx.arc(center_x, center_y, rad, 0, Math.PI*2, true);
 		ctx.clip();
@@ -334,6 +331,7 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 	};
 
 	function shadeDarkness(ctx, center_x, center_y, rad) {
+		if (!darkness) return;
 		var radgrad = ctx.createRadialGradient(center_x,center_y,10,center_x,center_y,rad);
 		radgrad.addColorStop(0, 'rgba(0,0,0,0)');
 		radgrad.addColorStop(0.7, 'rgba(0,0,0,0)');
