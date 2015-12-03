@@ -43,17 +43,13 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 	var loaded = false;
 	var observer_x = position[0];
 	var observer_y = position[1];
-	var left = false;
-	var right = false;
-	var up = false;
-	var down = false;
+	var left = false, right = false, up = false, down = false;
 	var shiftKey = false;
 	var stopMovement = false;
 	var drag_start_x = 0, drag_start_y = 0, drag_diff_x = 0, drag_diff_y = 0;
+	var speed = 5;
 	var hammer = new Hammer(document.getElementById("canvas"));
 	hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-
-	var speed = 5;
 	
 	var img1 = new Image();
 	var img1_loaded = false;
@@ -200,9 +196,35 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 			requestAnimFrame(update);
 			return;
 		}
-
 		update_needed = false;
 
+		updateMovement();
+
+		var center_x = width/2;
+		var center_y = height/2;
+		var offset_x = center_x - observer_x;
+		var offset_y = center_y - observer_y;
+		var rad = Math.min(width, height)/2;
+
+		ctx.restore();
+		ctx.save();
+		ctx.clearRect(0, 0, width, height);
+
+		if (darkness) {
+			clipDarkness(ctx, center_x, center_y, rad);
+		}
+		clipVisibility(ctx, offset_x, offset_y);
+		renderBackground(ctx, center_x, center_y, rad);
+		renderDoors(ctx, offset_x, offset_y);
+		renderCrosshair(ctx, center_x, center_y);
+		if (darkness) {
+			shadeDarkness(ctx, center_x, center_y, rad);
+		}
+
+		requestAnimFrame(update);
+	};
+
+	function updateMovement() {
 		if (!stopMovement) {
 			if (left) {
 				move(observer_x - speed, observer_y);
@@ -222,30 +244,25 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 			}
 		}
 		if (shiftKey && (left || right || up || down)) stopMovement = true;
+	};
 
-		var center_x = width/2;
-		var center_y = height/2;
-		var rad = Math.min(width, height)/2;
-		ctx.restore();
-		ctx.save();
-		ctx.clearRect(0, 0, width, height);
+	function clipDarkness(ctx, center_x, center_y, rad) {
+		ctx.beginPath();
+		ctx.arc(center_x, center_y, rad, 0, Math.PI*2, true);
+		ctx.clip();
+	};
 
-		if (darkness) {
-			ctx.beginPath();
-			ctx.arc(center_x, center_y, rad, 0, Math.PI*2, true);
-			ctx.clip();
-		}
-
-		var offset_x = center_x - observer_x;
-		var offset_y = center_y - observer_y;
+	function clipVisibility(ctx, offset_x, offset_y) {
 		var poly = VisibilityPolygon.computeViewport([observer_x, observer_y], segments, [-offset_x, -offset_y], [width-offset_x, height-offset_y]);
-
 		ctx.beginPath();
 		ctx.moveTo(poly[0][0]+offset_x, poly[0][1]+offset_y);
 		for (var i = 1; i < poly.length; ++i) {
 			ctx.lineTo(poly[i][0]+offset_x, poly[i][1]+offset_y);
 		}
 		ctx.clip();
+	};
+
+	function renderBackground(ctx, center_x, center_y, rad) {
 		var clip_x = observer_x - width/2;
 		var clip_y = observer_y - height/2;
 		var size_x = width;
@@ -277,6 +294,9 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 			size_y = img1.height - clip_y - 1;
 		}
 		ctx.drawImage(img1, clip_x, clip_y, size_x, size_y, start_x, start_y, size_x, size_y);
+	};
+
+	function renderDoors(ctx, offset_x, offset_y) {
 		for (var i = segments.length - num_doors; i < segments.length; ++i) {
 			ctx.beginPath();
 			ctx.lineWidth=10;
@@ -291,7 +311,9 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 			ctx.lineTo(segments[i][1][0]+offset_x, segments[i][1][1]+offset_y);
 			ctx.stroke();
 		}
+	};
 
+	function renderCrosshair(ctx, center_x, center_y) {
 		ctx.beginPath();
 		ctx.lineWidth=2;
 		ctx.strokeStyle='black';
@@ -309,16 +331,14 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 		ctx.fillRect(center_x+5,center_y-2,20,4);
 		ctx.rect(center_x+5,center_y-2,20,4);
 		ctx.stroke();
+	};
 
-		if (darkness) {
-			var radgrad = ctx.createRadialGradient(center_x,center_y,10,center_x,center_y,rad);
-			radgrad.addColorStop(0, 'rgba(0,0,0,0)');
-			radgrad.addColorStop(0.7, 'rgba(0,0,0,0)');
-			radgrad.addColorStop(1, 'rgba(0,0,0,1)');
-			ctx.fillStyle = radgrad;
-			ctx.fillRect(center_x-rad,center_y-rad,rad*2,rad*2);
-		}
-
-		requestAnimFrame(update);
+	function shadeDarkness(ctx, center_x, center_y, rad) {
+		var radgrad = ctx.createRadialGradient(center_x,center_y,10,center_x,center_y,rad);
+		radgrad.addColorStop(0, 'rgba(0,0,0,0)');
+		radgrad.addColorStop(0.7, 'rgba(0,0,0,0)');
+		radgrad.addColorStop(1, 'rgba(0,0,0,1)');
+		ctx.fillStyle = radgrad;
+		ctx.fillRect(center_x-rad,center_y-rad,rad*2,rad*2);
 	};
 };
