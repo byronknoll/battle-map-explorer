@@ -39,7 +39,6 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 	canvas.getContext("2d").canvas.width  = width;
 	canvas.getContext("2d").canvas.height = height;
 	var update_needed = true;
-	var num_doors = 0;
 	var loaded = false;
 	var observer_x = position[0];
 	var observer_y = position[1];
@@ -48,6 +47,7 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 	var stopMovement = false;
 	var drag_start_x = 0, drag_start_y = 0, drag_diff_x = 0, drag_diff_y = 0;
 	var speed = 5;
+	var segments = [], doors_open = [];
 	var hammer = new Hammer(document.getElementById("canvas"));
 	hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
 	
@@ -66,11 +66,9 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 		polygons.push([[-1,-1],[img_width+1,-1],[img_width+1,img_height+1],[-1,img_height+1]]);
 		segments = VisibilityPolygon.convertToSegments(polygons);
 		segments = VisibilityPolygon.breakIntersections(segments);
-		// doors:
 		for (var i = 0; i < doors.length; ++i) {
-			segments.push(doors[i]);
+			doors_open.push(false);
 		}
-		num_doors = doors.length;
 	};
 
 	window.onresize = function(event) {
@@ -171,9 +169,52 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 		move(observer_x - diff_x, observer_y - diff_y);
 	});
 
+	// Tap on doors to open/close them.
+	hammer.on('tap', function(e) {
+		var center_x = width/2;
+		var center_y = height/2;
+		var offset_x = center_x - observer_x;
+		var offset_y = center_y - observer_y;
+		var x = e.center.x - offset_x;
+		var y = e.center.y - offset_y;
+		for (var i = 0; i < doors.length; ++i) {
+			var dis = pointToLineSegmentDistance(x, y, doors[i][0][0], doors[i][0][1], doors[i][1][0], doors[i][1][1]);
+			if (dis < 10) {
+				doors_open[i] = !doors_open[i];
+				update_needed = true;
+			}
+		}
+	});
+
+	// http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+	function pointToLineSegmentDistance(x, y, x1, y1, x2, y2) {
+		var A = x - x1;
+		var B = y - y1;
+		var C = x2 - x1;
+		var D = y2 - y1;
+		var dot = A * C + B * D;
+		var len_sq = C * C + D * D;
+		var param = -1;
+		if (len_sq != 0) param = dot / len_sq;
+		var xx, yy;
+		if (param < 0) {
+			xx = x1;
+			yy = y1;
+		} else if (param > 1) {
+			xx = x2;
+			yy = y2;
+		} else {
+			xx = x1 + param * C;
+			yy = y1 + param * D;
+		}
+		var dx = x - xx;
+		var dy = y - yy;
+		return Math.sqrt(dx * dx + dy * dy);
+	}
+
 	function move(x, y) {
 		// prevent wall jumping:
-		for (var i = 0; i < segments.length - num_doors; ++i) {
+		for (var i = 0; i < segments.length; ++i) {
 			if (VisibilityPolygon.doLineSegmentsIntersect(observer_x, observer_y, x, y, segments[i][0][0], segments[i][0][1], segments[i][1][0], segments[i][1][1])) return;
 		}
 		observer_x = x;
@@ -250,7 +291,16 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 	};
 
 	function clipVisibility(ctx, offset_x, offset_y) {
-		var poly = VisibilityPolygon.computeViewport([observer_x, observer_y], segments, [-offset_x, -offset_y], [width-offset_x, height-offset_y]);
+		var all_segments = [];
+		for (var i = 0; i < segments.length; ++i) {
+			all_segments.push(segments[i]);
+		}
+		for (var i = 0; i < doors.length; ++i) {
+			if (!doors_open[i]) {
+				all_segments.push(doors[i]);
+			}
+		}
+		var poly = VisibilityPolygon.computeViewport([observer_x, observer_y], all_segments, [-offset_x, -offset_y], [width-offset_x, height-offset_y]);
 		ctx.beginPath();
 		ctx.moveTo(poly[0][0]+offset_x, poly[0][1]+offset_y);
 		for (var i = 1; i < poly.length; ++i) {
@@ -294,18 +344,19 @@ BattleMapExplorer.run = function(image, position, polygons, doors, darkness) {
 	};
 
 	function renderDoors(ctx, offset_x, offset_y) {
-		for (var i = segments.length - num_doors; i < segments.length; ++i) {
+		for (var i = 0; i < doors.length; ++i) {
+			if (doors_open[i]) continue;
 			ctx.beginPath();
 			ctx.lineWidth=10;
 			ctx.strokeStyle='black';
-			ctx.moveTo(segments[i][0][0]+offset_x, segments[i][0][1]+offset_y);
-			ctx.lineTo(segments[i][1][0]+offset_x, segments[i][1][1]+offset_y);
+			ctx.moveTo(doors[i][0][0]+offset_x, doors[i][0][1]+offset_y);
+			ctx.lineTo(doors[i][1][0]+offset_x, doors[i][1][1]+offset_y);
 			ctx.stroke();
 			ctx.beginPath();
 			ctx.lineWidth=6;
 			ctx.strokeStyle='white';
-			ctx.moveTo(segments[i][0][0]+offset_x, segments[i][0][1]+offset_y);
-			ctx.lineTo(segments[i][1][0]+offset_x, segments[i][1][1]+offset_y);
+			ctx.moveTo(doors[i][0][0]+offset_x, doors[i][0][1]+offset_y);
+			ctx.lineTo(doors[i][1][0]+offset_x, doors[i][1][1]+offset_y);
 			ctx.stroke();
 		}
 	};
